@@ -12,6 +12,7 @@ ALTURA_FRAME = 720
 METROS_POR_PIXEL = 0.08
 LIMITE_VELOCIDADE_KMH = 80
 VELOCIDADE_MAXIMA_VALIDA = 220
+NOME_JANELA = "Radar de Velocidade - SpeedVision AI"
 
 
 def atualizar_resultados(resultados_finais, veiculo):
@@ -114,10 +115,13 @@ def executar_radar():
         DesignerRadar.desenhar_veiculos(frame_ajustado, dados_veiculos)
         DesignerRadar.desenhar_painel_resultados(frame_ajustado, resumo)
 
-        cv2.imshow("Radar de Velocidade - SpeedVision AI", frame_ajustado)
+        cv2.imshow(NOME_JANELA, frame_ajustado)
 
         tecla = cv2.waitKey(20) & 0xFF
         if tecla == 27 or tecla == ord("q"):
+            break
+
+        if cv2.getWindowProperty(NOME_JANELA, cv2.WND_PROP_VISIBLE) < 1:
             break
 
     captura.release()
