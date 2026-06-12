@@ -1,0 +1,330 @@
+:root {
+    --cor-fundo: #0d1117;
+    --cor-painel: #161b22;
+    --cor-borda: #30363d;
+    --cor-texto: #e6edf3;
+    --cor-texto-fraco: #8b949e;
+    --cor-destaque: #00e0ff;
+    --cor-perigo: #ff4d4d;
+    --cor-sucesso: #3fb950;
+    --raio: 10px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    padding: 20px;
+}
+
+/* ===================== TOPO ===================== */
+.topo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background: var(--cor-painel);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icone {
+    font-size: 28px;
+}
+
+.logo h1 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.logo h1 span {
+    color: var(--cor-destaque);
+}
+
+.controles {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.campo-limite {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: var(--cor-texto-fraco);
+    gap: 4px;
+}
+
+.campo-limite label {
+    padding-left: 2px;
+}
+
+.campo-limite > div,
+.campo-limite input,
+.campo-limite button {
+    height: 34px;
+}
+
+.campo-limite {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.campo-limite label {
+    align-self: center;
+}
+
+#input-limite {
+    width: 70px;
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    color: var(--cor-texto);
+    border-radius: 6px;
+    padding: 0 8px;
+}
+
+/* ===================== BOTOES ===================== */
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 0 16px;
+    height: 34px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #fff;
+    transition: opacity 0.15s ease, transform 0.05s ease;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-iniciar {
+    background: var(--cor-sucesso);
+    color: #06280f;
+}
+
+.btn-parar {
+    background: var(--cor-perigo);
+    color: #2a0606;
+}
+
+.btn-relatorio {
+    background: var(--cor-destaque);
+    color: #00303a;
+}
+
+#btn-aplicar-limite {
+    background: var(--cor-borda);
+    color: var(--cor-texto);
+}
+
+/* ===================== CONTEUDO PRINCIPAL ===================== */
+.conteudo {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .conteudo {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===================== PAINEL DE VIDEO ===================== */
+.painel-video {
+    background: var(--cor-painel);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 16px;
+    position: relative;
+}
+
+.moldura-video {
+    width: 100%;
+    aspect-ratio: 1080 / 720;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#video-stream {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.overlay-parado {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(13, 17, 23, 0.85);
+    gap: 6px;
+}
+
+.overlay-parado p {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.overlay-parado span {
+    font-size: 13px;
+    color: var(--cor-texto-fraco);
+}
+
+.overlay-parado.escondido {
+    display: none;
+}
+
+.status-badge {
+    position: absolute;
+    top: 26px;
+    right: 26px;
+    background: var(--cor-perigo);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.status-badge.ativo {
+    background: var(--cor-sucesso);
+    color: #06280f;
+}
+
+/* ===================== PAINEL DE ESTATISTICAS ===================== */
+.painel-stats {
+    background: var(--cor-painel);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 16px;
+}
+
+.painel-stats h2 {
+    font-size: 16px;
+    margin-bottom: 14px;
+    color: var(--cor-destaque);
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-card {
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-valor {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--cor-texto-fraco);
+}
+
+.stat-alerta {
+    grid-column: span 2;
+    border-color: var(--cor-perigo);
+}
+
+.stat-alerta .stat-valor {
+    color: var(--cor-perigo);
+}
+
+/* ===================== GALERIA DE INFRACOES ===================== */
+.painel-infracoes {
+    background: var(--cor-painel);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.painel-infracoes h2 {
+    font-size: 16px;
+    margin-bottom: 14px;
+    color: var(--cor-destaque);
+}
+
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+}
+
+.galeria-vazia {
+    color: var(--cor-texto-fraco);
+    font-size: 14px;
+}
+
+.card-infracao {
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-infracao img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    display: block;
+}
+
+.card-infracao .info {
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+.card-infracao .info b {
+    color: var(--cor-perigo);
+}

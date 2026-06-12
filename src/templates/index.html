@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedVision AI - Radar de Velocidade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header class="topo">
+        <div class="logo">
+            <span class="logo-icone">📡</span>
+            <h1>SpeedVision <span>AI</span></h1>
+        </div>
+
+        <div class="controles">
+            <div class="campo-limite">
+                <label for="input-limite">Limite (km/h)</label>
+                <input type="number" id="input-limite" value="80" min="0">
+                <button id="btn-aplicar-limite">Aplicar</button>
+            </div>
+
+            <button id="btn-iniciar" class="btn btn-iniciar">▶ Iniciar</button>
+            <button id="btn-parar" class="btn btn-parar">■ Parar</button>
+            <a id="btn-relatorio" class="btn btn-relatorio" href="/api/relatorio">⬇ Exportar CSV</a>
+        </div>
+    </header>
+
+    <main class="conteudo">
+        <section class="painel-video">
+            <div class="moldura-video">
+                <img id="video-stream" src="" alt="Stream do radar">
+                <div id="overlay-parado" class="overlay-parado">
+                    <p>Radar parado</p>
+                    <span>Clique em "Iniciar" para comecar o monitoramento</span>
+                </div>
+            </div>
+            <span class="status-badge" id="status-badge">PARADO</span>
+        </section>
+
+        <aside class="painel-stats">
+            <h2>Estatisticas em tempo real</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-valor" id="stat-total">0</span>
+                    <span class="stat-label">Veiculos monitorados</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-valor" id="stat-com-velocidade">0</span>
+                    <span class="stat-label">Com velocidade calculada</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-valor" id="stat-media">0</span>
+                    <span class="stat-label">Velocidade media (km/h)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-valor" id="stat-maior">0</span>
+                    <span class="stat-label">Maior velocidade (km/h)</span>
+                </div>
+                <div class="stat-card stat-alerta">
+                    <span class="stat-valor" id="stat-acima">0</span>
+                    <span class="stat-label" id="stat-limite-label">Acima de 80 km/h</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <section class="painel-infracoes">
+        <h2>Galeria de infracoes</h2>
+        <div id="galeria-infracoes" class="galeria">
+            <p class="galeria-vazia">Nenhuma infracao registrada ainda.</p>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

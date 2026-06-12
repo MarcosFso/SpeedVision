@@ -1,0 +1,178 @@
+import cv2
+import os
+import csv
+from utils.detector import LocalizadorVeiculos
+from utils.fisica import MotorFisicoRadar
+from utils.gerenciador_video import garantir_video_local
+from utils.interface import DesignerRadar
+
+
+LINK_YOUTUBE = "https://www.youtube.com/watch?v=PNCJQkvALVc"
+LARGURA_FRAME = 1080
+ALTURA_FRAME = 720
+METROS_POR_PIXEL = 0.08
+LIMITE_VELOCIDADE_KMH = 80
+VELOCIDADE_MAXIMA_VALIDA = 220
+NOME_JANELA = "Radar de Velocidade - SpeedVision AI"
+
+
+def atualizar_resultados(resultados_finais, veiculo):
+    v_id = veiculo["id"]
+    velocidade = veiculo.get("velocidade", 0)
+
+    if v_id not in resultados_finais:
+        resultados_finais[v_id] = {
+            "id": v_id,
+            "tipo": veiculo["tipo"],
+            "sentido": veiculo["sentido"],
+            "velocidade_atual": 0,
+            "velocidade_maxima": 0,
+            "leituras": [],
+        }
+
+    resultado = resultados_finais[v_id]
+    resultado["tipo"] = veiculo["tipo"]
+    resultado["sentido"] = veiculo["sentido"]
+    resultado["velocidade_atual"] = velocidade
+
+    if velocidade > 0:
+        resultado["leituras"].append(velocidade)
+        resultado["velocidade_maxima"] = max(resultado["velocidade_maxima"], velocidade)
+
+
+def compilar_resumo(resultados_finais):
+    total_monitorados = len(resultados_finais)
+    veiculos_com_velocidade = [
+        item for item in resultados_finais.values() if item["leituras"]
+    ]
+    velocidades = [
+        leitura for item in veiculos_com_velocidade for leitura in item["leituras"]
+    ]
+
+    if velocidades:
+        velocidade_media = sum(velocidades) / len(velocidades)
+        maior_velocidade = max(velocidades)
+    else:
+        velocidade_media = 0
+        maior_velocidade = 0
+
+    acima_limite = sum(
+        1
+        for item in veiculos_com_velocidade
+        if item["velocidade_maxima"] > LIMITE_VELOCIDADE_KMH
+    )
+
+    return {
+        "total": total_monitorados,
+        "com_velocidade": len(veiculos_com_velocidade),
+        "media": velocidade_media,
+        "maior": maior_velocidade,
+        "acima_limite": acima_limite,
+        "limite": LIMITE_VELOCIDADE_KMH,
+    }
+
+
+def executar_radar():
+    caminho_video = garantir_video_local(LINK_YOUTUBE)
+    captura = cv2.VideoCapture(caminho_video)
+
+    if not captura.isOpened():
+        raise RuntimeError(f"Nao foi possivel abrir o video: {caminho_video}")
+
+    fps_video = captura.get(cv2.CAP_PROP_FPS) or 30
+    detector = LocalizadorVeiculos()
+    motor_fisico = MotorFisicoRadar(fps_video, METROS_POR_PIXEL)
+
+    contador_frames = 0
+    dados_veiculos = []
+    resultados_finais = {}
+
+    while captura.isOpened():
+        sucesso, frame = captura.read()
+
+        if not sucesso:
+            break
+
+        frame_ajustado = cv2.resize(frame, (LARGURA_FRAME, ALTURA_FRAME))
+        DesignerRadar.desenhar_limites_pistas(frame_ajustado)
+
+        tempo_atual = contador_frames / fps_video
+
+        if contador_frames % 2 == 0:
+            dados_veiculos = detector.detectar_e_rastrear(frame_ajustado)
+
+            for veiculo in dados_veiculos:
+                velocidade = motor_fisico.calcular_velocidade(veiculo, tempo_atual)
+                if velocidade > VELOCIDADE_MAXIMA_VALIDA:
+                    velocidade = 0
+
+                veiculo["velocidade"] = velocidade
+                veiculo["acima_limite"] = velocidade > LIMITE_VELOCIDADE_KMH
+                atualizar_resultados(resultados_finais, veiculo)
+
+               # ==================================================
+                # O FLASH DO RADAR
+                # ==================================================
+                if veiculo["acima_limite"]:
+                    os.makedirs("infracoes", exist_ok=True) # Cria a pasta se não existir
+                    nome_foto = f"infracoes/ID{veiculo['id']}_{velocidade}kmh.jpg"
+                    
+                    # Só tira a foto uma vez por carro
+                    if not os.path.exists(nome_foto):
+                        x, y = veiculo["x"], veiculo["y"]
+                        # Calcula um "quadrado" de 120x120 pixels ao redor do carro
+                        y1, y2 = max(0, y - 60), min(ALTURA_FRAME, y + 60)
+                        x1, x2 = max(0, x - 60), min(LARGURA_FRAME, x + 60)
+                        
+                        foto_recortada = frame_ajustado[y1:y2, x1:x2]
+                        cv2.imwrite(nome_foto, foto_recortada) # Salva o JPG!
+                # ==================================================
+
+        contador_frames += 1
+
+        resumo = compilar_resumo(resultados_finais)
+        DesignerRadar.desenhar_veiculos(frame_ajustado, dados_veiculos)
+        DesignerRadar.desenhar_painel_resultados(frame_ajustado, resumo)
+
+        cv2.imshow(NOME_JANELA, frame_ajustado)
+
+        tecla = cv2.waitKey(20) & 0xFF
+        if tecla == 27 or tecla == ord("q"):
+            break
+
+        if cv2.getWindowProperty(NOME_JANELA, cv2.WND_PROP_VISIBLE) < 1:
+            break
+
+    captura.release()
+    cv2.destroyAllWindows()
+
+    resumo_final = compilar_resumo(resultados_finais)
+    print("\n===== RESULTADOS FINAIS - SPEEDVISION =====")
+    print(f"Veiculos monitorados: {resumo_final['total']}")
+    print(f"Veiculos com velocidade calculada: {resumo_final['com_velocidade']}")
+    print(f"Velocidade media: {resumo_final['media']:.1f} km/h")
+    print(f"Maior velocidade: {resumo_final['maior']:.1f} km/h")
+    print(
+        f"Acima do limite ({resumo_final['limite']} km/h): "
+        f"{resumo_final['acima_limite']}"
+    )
+
+# ==================================================
+    # EXPORTAR PLANILHA CSV
+    # ==================================================
+    print("\n[EXPORTANDO] Gerando relatorio Excel (relatorio_radar.csv)...")
+    with open("relatorio_radar.csv", mode="w", newline="", encoding="utf-8") as arquivo:
+        escritor = csv.writer(arquivo)
+        escritor.writerow(["ID do Veiculo", "Tipo", "Sentido", "Velocidade Maxima (km/h)", "Multado?"])
+        
+        for v_id, dados in resultados_finais.items():
+            if dados["velocidade_maxima"] > 0:
+                multado = "SIM" if dados["velocidade_maxima"] > LIMITE_VELOCIDADE_KMH else "NAO"
+                vel_max = round(dados["velocidade_maxima"], 1)
+                escritor.writerow([v_id, dados["tipo"], dados["sentido"], vel_max, multado])
+                
+    print("[SUCESSO] Relatorio gerado com sucesso!")
+
+
+if __name__ == "__main__":
+    executar_radar()
