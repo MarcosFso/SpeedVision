@@ -25,7 +25,7 @@ Projeto desenvolvido **em equipe** na faculdade (Sistemas de Informação), para
 - **Painel web em tempo real** com vídeo processado e resumo: total de veículos monitorados, velocidade média, maior velocidade e quantidade acima do limite.
 - **Galeria de infrações**: foto de cada veículo que ultrapassa o limite, salva com ID e velocidade.
 - **Relatório em CSV** para download pela interface, com o ID de cada veículo e seu status.
-- **Download automático do vídeo de teste** (via `yt-dlp`) na primeira execução. Depois disso o projeto roda offline.
+- **Vídeo de teste incluído** em `videos/`. Se o arquivo não existir, ele é baixado automaticamente (via `yt-dlp`).
 
 ## 🛠️ Tecnologias
 
@@ -48,7 +48,7 @@ SpeedVision/
 │   └── static/         # CSS e JavaScript
 ├── videos/             # vídeo de teste
 ├── requirements.txt
-└── yolov8n.pt          # pesos do modelo YOLO
+└── .gitignore
 ```
 
 ## 🚀 Como executar
@@ -74,7 +74,7 @@ pip install -r requirements.txt
 python src/app.py
 ```
 
-Depois abra **http://localhost:5000** no navegador e use os controles do painel para iniciar o radar. Na primeira execução o vídeo de teste é baixado automaticamente, então é necessário ter internet.
+Depois abra **http://localhost:5000** no navegador e use os controles do painel para iniciar o radar. Na primeira execução o modelo YOLO (`yolov8n.pt`) é baixado automaticamente, então é necessário ter internet.
 
 ## 🔌 Endpoints da API
 
