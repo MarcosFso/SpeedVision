@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# Arquivos gerados pelo radar
+infracoes/
+relatorio_radar.csv
+
+# Modelo YOLO (baixado automaticamente na primeira execução)
+*.pt
+
+# Editores e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Variáveis de ambiente
+.env
